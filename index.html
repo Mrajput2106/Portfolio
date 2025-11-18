@@ -6,7 +6,7 @@
   <style>
     html,body {
       height:100%; margin:0; background:#222; overflow:hidden;
-      display:flex; align-items:center; justify-content:center;
+      display:block; /* FIXED: Previously flex caused bottom controls to hide */
     }
     #gameContainer {
       position:relative;
@@ -19,7 +19,6 @@
       touch-action:none;
     }
 
-    /* Start + Retry Screens */
     .overlayScreen {
       position:absolute;
       top:0; left:0;
@@ -47,7 +46,7 @@
 
     #controls {
       position:absolute;
-      bottom:20px;
+      bottom: calc(env(safe-area-inset-bottom) + 20px); /* FIX: Prevent hiding */
       width:100%;
       display:flex;
       justify-content:space-between;
@@ -87,26 +86,21 @@
 <div id="gameContainer">
   <canvas id="game" width="600" height="700"></canvas>
 
-  <!-- START SCREEN -->
   <div id="startScreen" class="overlayScreen">
     <h1>MONSTER SHOOTER</h1>
     <div id="startBtn" class="gameBtn">START</div>
   </div>
 
-  <!-- RETRY SCREEN -->
   <div id="retryScreen" class="overlayScreen" style="display:none;">
     <h1>GAME OVER</h1>
     <div id="retryBtn" class="gameBtn">RETRY</div>
   </div>
 
   <div id="controls">
-
-    <!-- LEFT SIDE: Fire Button -->
     <div class="btnGroup">
       <div id="fireBtn" class="ctrlBtn">FIRE</div>
     </div>
 
-    <!-- RIGHT SIDE: Arrow Controls -->
     <div class="btnGroup">
       <div id="up" class="ctrlBtn">▲</div>
       <div style="display:flex; gap:10px; justify-content:center;">
@@ -115,7 +109,6 @@
       </div>
       <div id="down" class="ctrlBtn">▼</div>
     </div>
-
   </div>
 </div>
 
@@ -197,7 +190,16 @@ let globalGameOver;
     for(let i=bullets.length-1;i>=0;i--){ bullets[i].y-=12; if(bullets[i].y<0) bullets.splice(i,1);}    
     for(let i=monsters.length-1;i>=0;i--){ monsters[i].y+=monsterSpeed; if(monsters[i].y>HEIGHT){globalGameOver();}}    
 
-    for(let bi=bullets.length-1;bi>=0;bi--){ for(let mi=monsters.length-1;mi>=0;mi--){ if(rectsIntersect(bullets[bi],monsters[mi])){ monsters.splice(mi,1); bullets.splice(bi,1); score++; break;}}}    
+    for(let bi=bullets.length-1;bi>=0;bi--){ 
+      for(let mi=monsters.length-1;mi>=0;mi--){ 
+        if(rectsIntersect(bullets[bi],monsters[mi])){ 
+          monsters.splice(mi,1); 
+          bullets.splice(bi,1); 
+          score++; 
+          break;
+        }
+      }
+    }    
 
     draw();
     requestAnimationFrame(tick);
@@ -206,7 +208,6 @@ let globalGameOver;
   requestAnimationFrame(tick);
 })();
 
-// ===== MOBILE CONTROLS =====
 function bindHold(id, downFn, upFn){
   const el=document.getElementById(id);
   el.addEventListener('touchstart', e=>{ e.preventDefault(); downFn(); });
@@ -221,7 +222,6 @@ bindHold('up', ()=>moveUp=true, ()=>moveUp=false);
 bindHold('down', ()=>moveDown=true, ()=>moveDown=false);
 bindHold('fireBtn', ()=>mouseHeld=true, ()=>mouseHeld=false);
 
-// ===== START / RETRY =====
 document.getElementById("startBtn").onclick = () => {
   document.getElementById("startScreen").style.display = "none";
   gameStarted = true;
