@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Monster Shooter Game - Mobile Responsive</title>
+  <title>Monster Shooter Game - Fixed Button Position</title>
   <style>
     html,body {
       height:100%; margin:0; background:#222; overflow:hidden;
-      display:block; /* FIXED: Previously flex caused bottom controls to hide */
+      display:block;
     }
     #gameContainer {
       position:relative;
@@ -44,9 +44,10 @@
       user-select:none;
     }
 
+    /* FIXED: BUTTONS MOVED UP */
     #controls {
       position:absolute;
-      bottom: calc(env(safe-area-inset-bottom) + 20px); /* FIX: Prevent hiding */
+      bottom:120px;  /* ← BUTTONS HIGHER NOW */
       width:100%;
       display:flex;
       justify-content:space-between;
@@ -110,6 +111,7 @@
       <div id="down" class="ctrlBtn">▼</div>
     </div>
   </div>
+
 </div>
 
 <script>
