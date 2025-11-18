@@ -1,98 +1,238 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mr Mickey | Portfolio </title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Fira+Mono:wght@400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8" />
+  <title>Monster Shooter Game - Mobile Responsive</title>
+  <style>
+    html,body {
+      height:100%; margin:0; background:#222; overflow:hidden;
+      display:flex; align-items:center; justify-content:center;
+    }
+    #gameContainer {
+      position:relative;
+      width:100vw; height:100vh;
+      display:flex; align-items:center; justify-content:center;
+    }
+    canvas {
+      background:#000;
+      width:100%; height:100%;
+      touch-action:none;
+    }
+
+    /* Start + Retry Screens */
+    .overlayScreen {
+      position:absolute;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:#000a;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      color:#fff;
+      font-family:Arial;
+      z-index:20;
+    }
+
+    .gameBtn {
+      padding:20px 40px;
+      background:#0af;
+      color:#fff;
+      border-radius:15px;
+      font-size:28px;
+      border:3px solid #fff;
+      margin-top:20px;
+      user-select:none;
+    }
+
+    #controls {
+      position:absolute;
+      bottom:20px;
+      width:100%;
+      display:flex;
+      justify-content:space-between;
+      padding:0 20px;
+      pointer-events:none;
+      z-index:5;
+    }
+
+    .btnGroup {
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      pointer-events:auto;
+    }
+
+    .ctrlBtn {
+      width:70px; height:70px;
+      border-radius:50%;
+      background:#ffffff44;
+      border:2px solid #fff;
+      color:#fff;
+      font-size:22px;
+      display:flex; align-items:center; justify-content:center;
+      user-select:none;
+    }
+
+    #fireBtn {
+      width:100px; height:100px;
+      background:#ff4444aa;
+      border:3px solid #fff;
+      font-size:26px;
+      border-radius:50%;
+    }
+  </style>
 </head>
 <body>
-  <video autoplay muted loop id="bg-video">
-    <source src="https://assets.mixkit.co/videos/preview/mixkit-night-city-traffic-1133-large.mp4" type="video/mp4" />
-    <!-- Replace the above src with your preferred background video -->
-  </video>
+<div id="gameContainer">
+  <canvas id="game" width="600" height="700"></canvas>
 
-  <div class="overlay"></div>
-  <header class="glass-nav">
-    <div class="logo">Mr Mickey</div>
-    <ul>
-      <li><a href="#home">Home</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#work">Work</a></li>
-      <li><a href="#skills">Skills</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-  </header>
+  <!-- START SCREEN -->
+  <div id="startScreen" class="overlayScreen">
+    <h1>MONSTER SHOOTER</h1>
+    <div id="startBtn" class="gameBtn">START</div>
+  </div>
 
-  <section id="home" class="center-glass animated fade-in-down">
-    <h1>Welcome to <span>Mr Mickey Portfolio Website</span></h1>
-    <h3>Passionate Developer & Designer</h3>
-    <a href="#contact" class="cta-btn animated pulse">Let's Connect</a>
-  </section>
+  <!-- RETRY SCREEN -->
+  <div id="retryScreen" class="overlayScreen" style="display:none;">
+    <h1>GAME OVER</h1>
+    <div id="retryBtn" class="gameBtn">RETRY</div>
+  </div>
 
-  <section id="about" class="glass-card animated scroll-up">
-    <h2>About Me</h2>
-    <p>
-      Unique web artisan with a love for dazzling interfaces, motion, and delightful user experiences.
-    </p>
-  </section>
+  <div id="controls">
 
-  <section id="work" class="project-gallery">
-    <h2 class="animated scroll-up">Featured Projects</h2>
-    <div class="project-row">
-      <div class="project-item animated glass-hover">
-        <h4>Art Space App</h4>
-        <p>Immersive art collaboration platform.</p>
-      </div>
-      <div class="project-item animated glass-hover">
-        <h4>Color Palette Picker</h4>
-        <p>Instantly generate beautiful palettes.</p>
-      </div>
-      <div class="project-item animated glass-hover">
-        <h4>Motion Blog</h4>
-        <p>Animated, stylish tech blog site.</p>
-      </div>
+    <!-- LEFT SIDE: Fire Button -->
+    <div class="btnGroup">
+      <div id="fireBtn" class="ctrlBtn">FIRE</div>
     </div>
-  </section>
 
-  <section id="skills" class="glass-card animated scroll-up">
-    <h2>Skills</h2>
-    <div class="skill-tags">
-      <span>HTML5</span>
-      <span>CSS3</span>
-      <span>JavaScript</span>
-      <span>React.js</span>
-      <span>GSAP Animation</span>
-      <span>Web Design</span>
-      <span>Figma</span>
+    <!-- RIGHT SIDE: Arrow Controls -->
+    <div class="btnGroup">
+      <div id="up" class="ctrlBtn">▲</div>
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <div id="left" class="ctrlBtn">◀</div>
+        <div id="right" class="ctrlBtn">▶</div>
+      </div>
+      <div id="down" class="ctrlBtn">▼</div>
     </div>
-  </section>
 
-  <section id="contact" class="glass-card animated scroll-up">
-    <h2>Contact</h2>
-    <form class="contact-form">
-      <input type="text" placeholder="Name" required />
-      <input type="email" placeholder="Email" required />
-      <textarea placeholder="Message" required></textarea>
-      <button type="submit" class="cta-btn">Send</button>
-    </form>
-  </section>
+  </div>
+</div>
 
-  <footer class="footer-glass">
-    <p>© 2025 Your Name. Crafted with heart.</p>
-  </footer>
+<script>
+let gameStarted = false;
+let globalReset;
+let globalGameOver;
 
-  <script>
-    // Scroll reveal for elements with 'scroll-up' class
-    window.addEventListener("scroll", function () {
-      document.querySelectorAll(".animated.scroll-up").forEach(function (elem) {
-        if (elem.getBoundingClientRect().top < window.innerHeight - 100) {
-          elem.classList.add("visible");
-        }
-      });
-    });
-  </script>
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+
+  const WIDTH = 600, HEIGHT = 700;
+  const HERO_SIZE = 40;
+  const HERO_START_X = 250, HERO_START_Y = 500;
+  const HERO_SPEED = 20;
+  const BULLET_W = 10, BULLET_H = 20;
+  const MONSTER_W = 40, MONSTER_H = 40;
+
+  window.moveLeft=false; window.moveRight=false; window.moveUp=false; window.moveDown=false;
+  window.mouseHeld=false;
+
+  let heroX, heroY;
+  let score;
+  let gameOver;
+  let bullets;
+  let monsters;
+  let monsterSpeed;
+  let spawnRate;
+
+  function rectsIntersect(a, b) {
+    return !(a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y);
+  }
+
+  function resetGame(){
+      heroX=HERO_START_X; heroY=HERO_START_Y;
+      bullets=[];
+      monsters=[];
+      score=0;
+      gameOver=false;
+      monsterSpeed=2;
+      spawnRate=50;
+  }
+
+  globalReset = resetGame;
+
+  globalGameOver = () => {
+      gameOver = true;
+      document.getElementById("retryScreen").style.display = "flex";
+  }
+
+  function draw(){
+    ctx.fillStyle='#000'; ctx.fillRect(0,0,WIDTH,HEIGHT);
+    ctx.fillStyle='#0ff'; ctx.fillRect(heroX,heroY,HERO_SIZE,HERO_SIZE);
+    ctx.fillStyle='#ff0'; bullets.forEach(b=>ctx.fillRect(b.x,b.y,b.width,b.height));
+    ctx.fillStyle='#f44'; monsters.forEach(m=>ctx.fillRect(m.x,m.y,m.width,m.height));
+    ctx.fillStyle='#fff'; ctx.font='22px Arial'; ctx.fillText('Score: '+score,20,40);
+  }
+
+  function tick(){
+    if(!gameStarted || gameOver) { requestAnimationFrame(tick); return; }
+
+    if(moveLeft) heroX-=HERO_SPEED;
+    if(moveRight) heroX+=HERO_SPEED;
+    if(moveUp) heroY-=HERO_SPEED;
+    if(moveDown) heroY+=HERO_SPEED;
+
+    heroX=Math.max(0,Math.min(WIDTH-HERO_SIZE,heroX));
+    heroY=Math.max(0,Math.min(HEIGHT-HERO_SIZE,heroY));
+
+    if(mouseHeld && Math.random()*4<1) bullets.push({x:heroX+15,y:heroY,width:BULLET_W,height:BULLET_H});
+
+    if(Math.random()*spawnRate<1) monsters.push({x:Math.random()*(WIDTH-MONSTER_W),y:0,width:MONSTER_W,height:MONSTER_H});
+
+    if(score>15){monsterSpeed=4;spawnRate=40;}
+    if(score>40){monsterSpeed=6;spawnRate=30;}
+    if(score>70){monsterSpeed=8;spawnRate=20;}
+
+    for(let i=bullets.length-1;i>=0;i--){ bullets[i].y-=12; if(bullets[i].y<0) bullets.splice(i,1);}    
+    for(let i=monsters.length-1;i>=0;i--){ monsters[i].y+=monsterSpeed; if(monsters[i].y>HEIGHT){globalGameOver();}}    
+
+    for(let bi=bullets.length-1;bi>=0;bi--){ for(let mi=monsters.length-1;mi>=0;mi--){ if(rectsIntersect(bullets[bi],monsters[mi])){ monsters.splice(mi,1); bullets.splice(bi,1); score++; break;}}}    
+
+    draw();
+    requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+})();
+
+// ===== MOBILE CONTROLS =====
+function bindHold(id, downFn, upFn){
+  const el=document.getElementById(id);
+  el.addEventListener('touchstart', e=>{ e.preventDefault(); downFn(); });
+  el.addEventListener('touchend', e=>{ e.preventDefault(); upFn(); });
+  el.addEventListener('mousedown', ()=>downFn());
+  el.addEventListener('mouseup', ()=>upFn());
+}
+
+bindHold('left', ()=>moveLeft=true, ()=>moveLeft=false);
+bindHold('right', ()=>moveRight=true, ()=>moveRight=false);
+bindHold('up', ()=>moveUp=true, ()=>moveUp=false);
+bindHold('down', ()=>moveDown=true, ()=>moveDown=false);
+bindHold('fireBtn', ()=>mouseHeld=true, ()=>mouseHeld=false);
+
+// ===== START / RETRY =====
+document.getElementById("startBtn").onclick = () => {
+  document.getElementById("startScreen").style.display = "none";
+  gameStarted = true;
+  globalReset();
+};
+
+document.getElementById("retryBtn").onclick = () => {
+  document.getElementById("retryScreen").style.display = "none";
+  gameStarted = true;
+  globalReset();
+};
+</script>
 </body>
 </html>
-
