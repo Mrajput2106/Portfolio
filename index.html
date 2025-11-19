@@ -1,179 +1,157 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Monster Shooter Game - Improved Controls</title>
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      background: #222;
-      overflow: hidden;
-      touch-action: none;
-    }
-
-    #gameContainer {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    canvas {
-      background: #000;
-      width: 100%;
-      height: 100%;
-    }
-
-    /* SCREEN OVERLAYS */
-    .overlayScreen {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: #000a;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-family: Arial;
-      z-index: 20;
-    }
-
-    .gameBtn {
-      padding: 40px 70px;
-      background: #0af;
-      color: #fff;
-      border-radius: 15px;
-      font-size: 28px;
-      border: 3px solid #fff;
-      margin-top: 20px;
-      user-select: none;
-    }
-
-    /* FIXED CONTROLS */
-    #controls {
-      position: absolute;
-      bottom: 200px;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      padding: 0 40px;
-      z-index: 5;
-      pointer-events: auto;
-    }
-
-    .btnGroup {
-      display: flex;
-      flex-direction: column;
-      gap: 25px;
-      pointer-events: auto;
-    }
-
-    /* BIGGER MOVEMENT BUTTONS */
-    .ctrlBtn {
-      width: 130px;   /* INCREASED */
-      height: 130px;  /* INCREASED */
-      border-radius: 50%;
-      background: #ffffff55;
-      border: 3px solid #fff;
-      color: #fff;
-      font-size: 40px; /* INCREASED */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      user-select: none;
-      touch-action: none;
-    }
-
-    /* BIGGER FIRE BUTTON */
-    #fireBtn {
-      width: 170px;   /* INCREASED */
-      height: 170px;  /* INCREASED */
-      font-size: 40px;
-      background: #ff4444dd;
-      border: 4px solid #fff;
-      border-radius: 50%;
-    }
-
-    /* SMALL SCREEN RESPONSIVE */
-    @media (max-width: 600px) {
-      .ctrlBtn {
-        width: 110px;
-        height: 110px;
-        font-size: 34px;
-      }
-
-      #fireBtn {
-        width: 150px;
-        height: 150px;
-        font-size: 36px;
-      }
-
-      #controls {
-        bottom: 160px;
-        padding: 0 25px;
-      }
-    }
-  </style>
+<meta charset="utf-8" />
+<title>Monster Shooter — Mobile Friendly</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<style>
+  html,body{
+    height:100%; margin:0; background:#111; font-family:Arial; color:#fff;
+    display:flex; justify-content:center; align-items:center;
+    min-height:100vh;
+  }
+  #phone{
+    width:360px; max-width:98vw;
+    height:720px; max-height:98vh;
+    background:#000; border-radius:18px;
+    position:relative; overflow:hidden;
+    box-shadow:0 0 30px #000;
+    display:flex; flex-direction:column;
+  }
+  #gameArea{
+    flex:1;
+    display:flex; justify-content:center; align-items:center;
+    position:relative;
+    background:#000;
+  }
+  canvas{
+    background:#000;
+    width:100%; max-width:100%;
+    height:100%; max-height:100%;
+    display:block;
+  }
+  #controls{
+    height:120px; min-height:85px;
+    width:100%; background:transparent;
+    display:flex; justify-content:space-between; align-items:flex-end;
+    position:relative; padding:6px; box-sizing:border-box;
+  }
+  #fireBtn{
+    width:66px; height:66px; background:#ff3333; border-radius:999px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; font-weight:bold; user-select:none;
+    border:3px solid rgba(255,255,255,0.2);
+    touch-action:none;
+  }
+  .moveBtn{
+    width:54px; height:54px;
+    background:#222; border-radius:14px; border:3px solid #555;
+    display:flex; align-items:center; justify-content:center;
+    font-size:32px; user-select:none;
+    touch-action:none;
+  }
+  #move{
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+  }
+  #leftRight{
+    display:flex; gap:4px;
+  }
+  .overlay{
+    position:absolute; inset:0; background:#000a; z-index:20;
+    display:flex; flex-direction:column; justify-content:center;
+    align-items:center;
+  }
+  .btn{
+    padding:16px 28px; background:#007aff; border-radius:12px;
+    font-size:20px; cursor:pointer; margin-top:20px;
+  }
+  #highScore{
+    position:absolute; top:8px; right:18px; z-index:25;
+    padding:8px 12px;
+    background:#222b; color:#ffeb3b;
+    font-weight:bold; font-size:21px; border-radius:10px;
+    pointer-events:none;
+    font-family:Arial,sans-serif;
+  }
+</style>
 </head>
 <body>
-<div id="gameContainer">
-
-  <canvas id="game" width="600" height="700"></canvas>
-
-  <div id="startScreen" class="overlayScreen">
-    <h1>MONSTER SHOOTER</h1>
-    <div id="startBtn" class="gameBtn">START</div>
+<div id="phone">
+  <div id="gameArea">
+    <div id="highScore">High Score: 0</div>
+    <canvas id="game" width="600" height="700"></canvas>
   </div>
-
-  <div id="retryScreen" class="overlayScreen" style="display:none;">
-    <h1>GAME OVER</h1>
-    <div id="retryBtn" class="gameBtn">RETRY</div>
+  <div id="startScreen" class="overlay">
+    <h2>MONSTER SHOOTER</h2>
+    <div id="startBtn" class="btn">START</div>
   </div>
-
-  <!-- FIXED CONTROLS -->
+  <div id="retryScreen" class="overlay" style="display:none">
+    <h2>GAME OVER</h2>
+    <div id="retryBtn" class="btn">RETRY</div>
+  </div>
   <div id="controls">
-
-    <!-- FIRE BUTTON -->
-    <div class="btnGroup">
-      <div id="fireBtn" class="ctrlBtn">FIRE</div>
-    </div>
-
-    <!-- MOVEMENT BUTTONS -->
-    <div class="btnGroup">
-      <div id="up" class="ctrlBtn">▲</div>
-
-      <div style="display:flex; gap:20px;">
-        <div id="left" class="ctrlBtn">◀</div>
-        <div id="right" class="ctrlBtn">▶</div>
+    <div id="fireBtn">FIRE</div>
+    <div id="move">
+      <div id="up" class="moveBtn">▲</div>
+      <div id="leftRight">
+        <div id="left" class="moveBtn">◀</div>
+        <div id="right" class="moveBtn">▶</div>
       </div>
-
-      <div id="down" class="ctrlBtn">▼</div>
+      <div id="down" class="moveBtn">▼</div>
     </div>
-
   </div>
-
 </div>
-
 <script>
-let gameStarted = false;
-let globalReset;
-let globalGameOver;
+/* -------- Responsive Canvas Sizing -------- */
+const W = 600, H = 700;
+function fitCanvas() {
+  let phone = document.getElementById('phone');
+  let gameArea = document.getElementById('gameArea');
+  let canvas = document.getElementById('game');
+  let areaW = gameArea.clientWidth, areaH = gameArea.clientHeight;
+  let scale = Math.min(areaW / W, areaH / H);
+  canvas.style.width  = (W*scale) + 'px';
+  canvas.style.height = (H*scale) + 'px';
+}
+window.addEventListener('resize', fitCanvas);
+window.addEventListener('orientationchange', fitCanvas);
+setTimeout(fitCanvas,100);
 
-/* GAME LOGIC – UNCHANGED */
+
+/* --------- High Score LocalStorage --------- */
+const SCORE_KEY = 'monsterShooterHighScore';
+function getHighScore() {
+  return parseInt(localStorage.getItem(SCORE_KEY) || '0', 10);
+}
+function setHighScore(val) {
+  localStorage.setItem(SCORE_KEY, val+'');
+}
+function showHighScore(val) {
+  document.getElementById('highScore').textContent = 'High Score: ' + val;
+}
+showHighScore(getHighScore());
+
+
+/* ---------------- GAME LOGIC ---------------- */
+let gameStarted = false;
+let lastFrame = performance.now();
+const CONTROL_HEIGHT = 120;
+const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
+
 (() => {
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
+  const HERO_SIZE = 40, HERO_X = 250, HERO_Y = 500;
+  const BASE_HERO_SPEED = 540; // increased base hero speed
+  const BULLET_SPEED = 700;
+  const BASE_MONSTER_SPEED = 140;
+  const MONSTER_BULLET_SPEED = 400;
 
-  const WIDTH = 600, HEIGHT = 700;
-  const HERO_SIZE = 40;
-  const HERO_START_X = 250, HERO_START_Y = 500;
-  const HERO_SPEED = 20;
-  const BULLET_W = 10, BULLET_H = 20;
-  const MONSTER_W = 40, MONSTER_H = 40;
+  let heroX, heroY, bullets, monsters, score, gameOver, monsterSpeed, spawnRate;
+  let monsterBullets = [];
+  let isMonstersFrozen = false;
+  let freezeStartTime = 0;
+  const FREEZE_DURATION = 5000; // 5 seconds freeze
 
   window.moveLeft=false;
   window.moveRight=false;
@@ -181,125 +159,203 @@ let globalGameOver;
   window.moveDown=false;
   window.mouseHeld=false;
 
-  let heroX, heroY, score, gameOver, bullets, monsters, monsterSpeed, spawnRate;
-
-  function rectsIntersect(a, b){
-    return !(a.x+a.width<=b.x || b.x+b.width<=a.x || a.y+a.height<=b.y || b.y+b.height<=a.y);
-  }
-
-  function resetGame(){
-    heroX=HERO_START_X; heroY=HERO_START_Y;
-    bullets=[]; monsters=[];
-    score=0;
-    gameOver=false;
-    monsterSpeed=2;
+  function reset(){
+    heroX=HERO_X; heroY=HERO_Y;
+    bullets=[];
+    monsters=[];
+    monsterBullets = [];
+    score=0; gameOver=false;
+    monsterSpeed=BASE_MONSTER_SPEED;
     spawnRate=50;
+    lastFrame = performance.now();
+    isMonstersFrozen=false;
+    freezeStartTime=0;
+    heroY = Math.min(heroY, SAFE_BOTTOM - HERO_SIZE);
   }
+  window.globalReset = reset;
 
-  globalReset = resetGame;
-
-  globalGameOver = () => {
+  function intersect(a,b){
+    return !(a.x+a.w<b.x || b.x+b.w<a.x || a.y+a.h<b.y || b.y+b.h<a.y);
+  }
+  window.globalGameOver = ()=>{
     gameOver=true;
     document.getElementById("retryScreen").style.display="flex";
   };
 
   function draw(){
-    ctx.fillStyle='#000';
-    ctx.fillRect(0,0,WIDTH,HEIGHT);
-
-    ctx.fillStyle='#0ff';
-    ctx.fillRect(heroX,heroY,HERO_SIZE,HERO_SIZE);
-
-    ctx.fillStyle='#ff0';
-    bullets.forEach(b=>ctx.fillRect(b.x,b.y,b.width,b.height));
-
-    ctx.fillStyle='#f44';
-    monsters.forEach(m=>ctx.fillRect(m.x,m.y,m.width,m.height));
-
-    ctx.fillStyle='#fff';
-    ctx.font='22px Arial';
-    ctx.fillText('Score: '+score,20,40);
+    ctx.fillStyle="#000"; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle="#0ff"; ctx.fillRect(heroX,heroY,HERO_SIZE,HERO_SIZE);
+    ctx.fillStyle="#ff0";
+    bullets.forEach(b=>ctx.fillRect(b.x,b.y,b.w,b.h));
+    ctx.fillStyle="#f44";
+    monsters.forEach(m=>ctx.fillRect(m.x,m.y,m.w,m.h));
+    ctx.fillStyle="#f8a"; // monster bullets color (pinkish)
+    monsterBullets.forEach(b=>ctx.fillRect(b.x,b.y,b.w,b.h));
+    ctx.fillStyle="#fff"; ctx.font="22px Arial";
+    ctx.fillText("Score: "+score,20,40);
   }
 
-  function tick(){
-    if(!gameStarted || gameOver){
-      requestAnimationFrame(tick);
-      return;
+  let fireCooldown = 0;
+  let monsterFireCooldown = 0;
+
+  function tick(now){
+    let dt = Math.min((now - lastFrame) / 1000, 0.04);
+    lastFrame = now;
+    if(!gameStarted || gameOver) { requestAnimationFrame(tick); return; }
+
+    // Hero speed increases with score continuously
+    let heroSpeed = BASE_HERO_SPEED + score * 10; // +10 px/sec per score
+    if(moveLeft)  heroX -= heroSpeed * dt;
+    if(moveRight) heroX += heroSpeed * dt;
+    if(moveUp)    heroY -= heroSpeed * dt;
+    if(moveDown)  heroY += heroSpeed * dt;
+
+    heroX = Math.max(0, Math.min(W-HERO_SIZE, heroX));
+    heroY = Math.max(0, Math.min(SAFE_BOTTOM-HERO_SIZE, heroY));
+
+    // Bullet firing (hero)
+    fireCooldown -= dt;
+    if(mouseHeld && fireCooldown <= 0){
+      bullets.push({x:heroX+15,y:heroY,w:10,h:20});
+      fireCooldown = 0.11; // ~9/sec
     }
 
-    if(moveLeft) heroX-=HERO_SPEED;
-    if(moveRight) heroX+=HERO_SPEED;
-    if(moveUp) heroY-=HERO_SPEED;
-    if(moveDown) heroY+=HERO_SPEED;
-
-    heroX=Math.max(0,Math.min(WIDTH-HERO_SIZE,heroX));
-    heroY=Math.max(0,Math.min(HEIGHT-HERO_SIZE,heroY));
-
-    if(mouseHeld && Math.random()*4 < 1)
-      bullets.push({x:heroX+15,y:heroY,width:BULLET_W,height:BULLET_H});
-
-    if(Math.random()*spawnRate < 1)
-      monsters.push({x:Math.random()*(WIDTH-MONSTER_W),y:0,width:MONSTER_W,height:MONSTER_H});
-
-    if(score>15){monsterSpeed=4;spawnRate=40;}
-    if(score>40){monsterSpeed=6;spawnRate=30;}
-    if(score>70){monsterSpeed=8;spawnRate=20;}
-
-    for(let i=bullets.length-1;i>=0;i--){
-      bullets[i].y-=12;
-      if(bullets[i].y<0) bullets.splice(i,1);
+    // Increase monster speed and spawn frequency as score grows
+    if(!isMonstersFrozen) {
+      monsterSpeed = BASE_MONSTER_SPEED + score * 5; // +5 px/sec per score
+      spawnRate = Math.max(12, 50 - Math.floor(score/2)); // spawn rate decreases with score but min 12
     }
 
-    for(let i=monsters.length-1;i>=0;i--){
-      monsters[i].y+=monsterSpeed;
-      if(monsters[i].y>HEIGHT) globalGameOver();
+    if(Math.random()*spawnRate < dt*spawnRate && !isMonstersFrozen)
+      monsters.push({x:Math.random()*(W-40),y:0,w:40,h:40});
+
+    // Move bullets (hero)
+    bullets.forEach(b=> b.y -= BULLET_SPEED*dt );
+    bullets = bullets.filter(b=>b.y>0);
+
+    // Check monster freeze condition at score 40
+    if(score >= 40 && !isMonstersFrozen){
+      // Freeze monsters and start firing
+      isMonstersFrozen = true;
+      freezeStartTime = now;
     }
 
-    for(let bi=bullets.length-1;bi>=0;bi--){
-      for(let mi=monsters.length-1;mi>=0;mi--){
-        if(rectsIntersect(bullets[bi],monsters[mi])){
-          monsters.splice(mi,1);
-          bullets.splice(bi,1);
-          score++;
+    // Monster behavior when frozen
+    if(isMonstersFrozen){
+      // Freeze monsters: no vertical movement
+      // Monster firing bullets at hero every 0.7 seconds
+      monsterFireCooldown -= dt;
+      if(monsterFireCooldown <= 0){
+        monsterFireCooldown = 0.7;
+        monsters.forEach(m => {
+          // Fire bullet from monster center downward horizontally aiming at hero position (simple horizontal aiming)
+          // Create bullet starting at bottom center of monster
+          let bulletX = m.x + m.w/2 - 7; // bullet width ~14
+          let bulletY = m.y + m.h;
+          // Calculate horizontal speed component towards heroX, normalized horizontally only
+          let diffX = heroX + HERO_SIZE/2 - bulletX;
+          let speedX = 0;
+          if(diffX !== 0) {
+            speedX = (diffX > 0) ? 150 : -150; // horizontal speed component
+          }
+          monsterBullets.push({
+            x: bulletX,
+            y: bulletY,
+            w: 14,
+            h: 14,
+            vx: speedX,
+            vy: MONSTER_BULLET_SPEED
+          });
+        });
+      }
+      // Monster bullets movement
+      monsterBullets.forEach(b => {
+        b.x += b.vx * dt;
+        b.y += b.vy * dt;
+      });
+      // Remove monster bullets offscreen
+      monsterBullets = monsterBullets.filter(b => b.y < H && b.x > 0 && b.x < W);
+
+      // After freeze duration, revert to normal behavior
+      if(now - freezeStartTime > FREEZE_DURATION){
+        isMonstersFrozen = false;
+        monsterBullets = [];
+      }
+    } else {
+      // Normal monster movement (vertical)
+      for(let m=monsters.length-1;m>=0;m--){
+        monsters[m].y += monsterSpeed*dt;
+        if(monsters[m].y>H) window.globalGameOver();
+      }
+      // Monster bullets cleared when not firing during freeze
+      monsterBullets = [];
+    }
+
+    // Collision checks: hero bullets vs monsters
+    for(let bi=bullets.length-1; bi>=0; bi--){
+      let b = bullets[bi];
+      let hitIndex = -1;
+      for(let mi=0; mi<monsters.length; mi++){
+        if(intersect({x:b.x,y:b.y,w:b.w,h:b.h}, monsters[mi])){
+          hitIndex = mi;
           break;
         }
       }
+      if(hitIndex >= 0){
+        monsters.splice(hitIndex,1);
+        bullets.splice(bi,1);
+        score++;
+      }
+    }
+
+    // Collision checks: monster bullets vs hero
+    for(let bi=monsterBullets.length-1; bi>=0; bi--){
+      let b = monsterBullets[bi];
+      let heroRect = {x:heroX,y:heroY,w:HERO_SIZE,h:HERO_SIZE};
+      if(intersect(b, heroRect)){
+        window.globalGameOver();
+      }
+    }
+
+    // Update high score
+    if(score > getHighScore()){
+      setHighScore(score);
+      showHighScore(score);
     }
 
     draw();
     requestAnimationFrame(tick);
   }
 
+  reset();
   requestAnimationFrame(tick);
 })();
 
-/* MULTI BUTTON HOLD SUPPORT */
-function bindHold(id, downFn, upFn){
+
+/* FIXED INPUT (pointer events for multitouch) */
+function bind(id, down, up){
   const el=document.getElementById(id);
-
-  el.addEventListener('touchstart', e=>{ e.preventDefault(); downFn(); });
-  el.addEventListener('touchend', e=>{ e.preventDefault(); upFn(); });
-
-  el.addEventListener('mousedown', ()=>downFn());
-  el.addEventListener('mouseup', ()=>upFn());
+  el.addEventListener("pointerdown", e=>{e.preventDefault(); down();});
+  el.addEventListener("pointerup",   e=>{e.preventDefault(); up();});
+  el.addEventListener("pointerleave",e=>{e.preventDefault(); up();});
 }
+bind("left", ()=>moveLeft=true,  ()=>moveLeft=false);
+bind("right",()=>moveRight=true, ()=>moveRight=false);
+bind("up",   ()=>moveUp=true,    ()=>moveUp=false);
+bind("down", ()=>moveDown=true,  ()=>moveDown=false);
+bind("fireBtn",()=>mouseHeld=true,()=>mouseHeld=false);
 
-bindHold('left',  ()=>moveLeft=true,  ()=>moveLeft=false);
-bindHold('right', ()=>moveRight=true, ()=>moveRight=false);
-bindHold('up',    ()=>moveUp=true,    ()=>moveUp=false);
-bindHold('down',  ()=>moveDown=true,  ()=>moveDown=false);
-bindHold('fireBtn', ()=>mouseHeld=true, ()=>mouseHeld=false);
 
-document.getElementById("startBtn").onclick = () => {
+/* start / retry */
+document.getElementById("startBtn").onclick = ()=>{
   document.getElementById("startScreen").style.display="none";
-  gameStarted=true;
-  globalReset();
+  gameStarted=true; globalReset();
+  fitCanvas();
 };
-
-document.getElementById("retryBtn").onclick = () => {
+document.getElementById("retryBtn").onclick = ()=>{
   document.getElementById("retryScreen").style.display="none";
-  gameStarted=true;
-  globalReset();
+  gameStarted=true; globalReset();
+  fitCanvas();
 };
 </script>
 </body>
