@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Monster Shooter Game - Fixed Controls</title>
+  <title>Monster Shooter Game - Improved Controls</title>
   <style>
     html, body {
       height: 100%;
@@ -53,10 +53,10 @@
       user-select: none;
     }
 
-    /* NEW FIXED CONTROLS */
+    /* FIXED CONTROLS */
     #controls {
       position: absolute;
-      bottom: 160px;  /* More upward */
+      bottom: 200px;
       width: 100%;
       display: flex;
       justify-content: space-between;
@@ -68,18 +68,19 @@
     .btnGroup {
       display: flex;
       flex-direction: column;
-      gap: 22px;
+      gap: 25px;
+      pointer-events: auto;
     }
 
-    /* BIGGER BUTTONS + RESPONSIVE */
+    /* BIGGER MOVEMENT BUTTONS */
     .ctrlBtn {
-      width: 85px;
-      height: 85px;
+      width: 130px;   /* INCREASED */
+      height: 130px;  /* INCREASED */
       border-radius: 50%;
       background: #ffffff55;
-      border: 2px solid #fff;
+      border: 3px solid #fff;
       color: #fff;
-      font-size: 26px;
+      font-size: 40px; /* INCREASED */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -87,29 +88,32 @@
       touch-action: none;
     }
 
+    /* BIGGER FIRE BUTTON */
     #fireBtn {
-      width: 120px;
-      height: 120px;
-      font-size: 28px;
-      background: #ff4444bb;
-      border: 3px solid #fff;
+      width: 170px;   /* INCREASED */
+      height: 170px;  /* INCREASED */
+      font-size: 40px;
+      background: #ff4444dd;
+      border: 4px solid #fff;
       border-radius: 50%;
     }
 
-    /* RESPONSIVE FOR SMALL PHONES */
+    /* SMALL SCREEN RESPONSIVE */
     @media (max-width: 600px) {
       .ctrlBtn {
-        width: 70px;
-        height: 70px;
-        font-size: 22px;
+        width: 110px;
+        height: 110px;
+        font-size: 34px;
       }
+
       #fireBtn {
-        width: 100px;
-        height: 100px;
-        font-size: 24px;
+        width: 150px;
+        height: 150px;
+        font-size: 36px;
       }
+
       #controls {
-        bottom: 140px;
+        bottom: 160px;
         padding: 0 25px;
       }
     }
@@ -117,6 +121,7 @@
 </head>
 <body>
 <div id="gameContainer">
+
   <canvas id="game" width="600" height="700"></canvas>
 
   <div id="startScreen" class="overlayScreen">
@@ -129,19 +134,19 @@
     <div id="retryBtn" class="gameBtn">RETRY</div>
   </div>
 
-  <!-- NEW FIXED CONTROLS -->
+  <!-- FIXED CONTROLS -->
   <div id="controls">
 
-    <!-- LEFT SIDE FIRE BUTTON -->
+    <!-- FIRE BUTTON -->
     <div class="btnGroup">
       <div id="fireBtn" class="ctrlBtn">FIRE</div>
     </div>
 
-    <!-- RIGHT SIDE MOVEMENT -->
+    <!-- MOVEMENT BUTTONS -->
     <div class="btnGroup">
       <div id="up" class="ctrlBtn">▲</div>
 
-      <div style="display: flex; gap: 15px; justify-content: center;">
+      <div style="display:flex; gap:20px;">
         <div id="left" class="ctrlBtn">◀</div>
         <div id="right" class="ctrlBtn">▶</div>
       </div>
@@ -154,11 +159,11 @@
 </div>
 
 <script>
-/* YOUR ORIGINAL GAME LOGIC — NOT TOUCHED AT ALL */
 let gameStarted = false;
 let globalReset;
 let globalGameOver;
 
+/* GAME LOGIC – UNCHANGED */
 (() => {
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
@@ -170,8 +175,10 @@ let globalGameOver;
   const BULLET_W = 10, BULLET_H = 20;
   const MONSTER_W = 40, MONSTER_H = 40;
 
-  window.moveLeft=false; window.moveRight=false;
-  window.moveUp=false; window.moveDown=false;
+  window.moveLeft=false;
+  window.moveRight=false;
+  window.moveUp=false;
+  window.moveDown=false;
   window.mouseHeld=false;
 
   let heroX, heroY, score, gameOver, bullets, monsters, monsterSpeed, spawnRate;
@@ -183,8 +190,10 @@ let globalGameOver;
   function resetGame(){
     heroX=HERO_START_X; heroY=HERO_START_Y;
     bullets=[]; monsters=[];
-    score=0; gameOver=false;
-    monsterSpeed=2; spawnRate=50;
+    score=0;
+    gameOver=false;
+    monsterSpeed=2;
+    spawnRate=50;
   }
 
   globalReset = resetGame;
@@ -213,20 +222,23 @@ let globalGameOver;
   }
 
   function tick(){
-    if(!gameStarted || gameOver){ requestAnimationFrame(tick); return; }
+    if(!gameStarted || gameOver){
+      requestAnimationFrame(tick);
+      return;
+    }
 
-    if(moveLeft)  heroX-=HERO_SPEED;
+    if(moveLeft) heroX-=HERO_SPEED;
     if(moveRight) heroX+=HERO_SPEED;
-    if(moveUp)    heroY-=HERO_SPEED;
-    if(moveDown)  heroY+=HERO_SPEED;
+    if(moveUp) heroY-=HERO_SPEED;
+    if(moveDown) heroY+=HERO_SPEED;
 
     heroX=Math.max(0,Math.min(WIDTH-HERO_SIZE,heroX));
     heroY=Math.max(0,Math.min(HEIGHT-HERO_SIZE,heroY));
 
-    if(mouseHeld && Math.random()*4<1)
+    if(mouseHeld && Math.random()*4 < 1)
       bullets.push({x:heroX+15,y:heroY,width:BULLET_W,height:BULLET_H});
 
-    if(Math.random()*spawnRate<1)
+    if(Math.random()*spawnRate < 1)
       monsters.push({x:Math.random()*(WIDTH-MONSTER_W),y:0,width:MONSTER_W,height:MONSTER_H});
 
     if(score>15){monsterSpeed=4;spawnRate=40;}
@@ -261,13 +273,15 @@ let globalGameOver;
   requestAnimationFrame(tick);
 })();
 
+/* MULTI BUTTON HOLD SUPPORT */
 function bindHold(id, downFn, upFn){
   const el=document.getElementById(id);
 
   el.addEventListener('touchstart', e=>{ e.preventDefault(); downFn(); });
-  el.addEventListener('touchend',   e=>{ e.preventDefault(); upFn(); });
-  el.addEventListener('mousedown',  ()=>downFn());
-  el.addEventListener('mouseup',    ()=>upFn());
+  el.addEventListener('touchend', e=>{ e.preventDefault(); upFn(); });
+
+  el.addEventListener('mousedown', ()=>downFn());
+  el.addEventListener('mouseup', ()=>upFn());
 }
 
 bindHold('left',  ()=>moveLeft=true,  ()=>moveLeft=false);
@@ -277,14 +291,14 @@ bindHold('down',  ()=>moveDown=true,  ()=>moveDown=false);
 bindHold('fireBtn', ()=>mouseHeld=true, ()=>mouseHeld=false);
 
 document.getElementById("startBtn").onclick = () => {
-  document.getElementById("startScreen").style.display = "none";
-  gameStarted = true;
+  document.getElementById("startScreen").style.display="none";
+  gameStarted=true;
   globalReset();
 };
 
 document.getElementById("retryBtn").onclick = () => {
-  document.getElementById("retryScreen").style.display = "none";
-  gameStarted = true;
+  document.getElementById("retryScreen").style.display="none";
+  gameStarted=true;
   globalReset();
 };
 </script>
