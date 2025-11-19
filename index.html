@@ -11,8 +11,8 @@
     min-height:100vh;
   }
   #phone{
-    width:360px; max-width:98vw;
-    height:720px; max-height:98vh;
+    width:420px; max-width:98vw; /* increased width */
+    height:820px; max-height:98vh; /* increased height */
     background:#000; border-radius:18px;
     position:relative; overflow:hidden;
     box-shadow:0 0 30px #000;
@@ -79,7 +79,7 @@
 <div id="phone">
   <div id="gameArea">
     <div id="highScore">High Score: 0</div>
-    <canvas id="game" width="600" height="700"></canvas>
+    <canvas id="game" width="700" height="800"></canvas> <!-- increased canvas size -->
   </div>
   <div id="startScreen" class="overlay">
     <h2>MONSTER SHOOTER</h2>
@@ -103,9 +103,8 @@
 </div>
 <script>
 /* -------- Responsive Canvas Sizing -------- */
-const W = 600, H = 700;
+const W = 700, H = 800;
 function fitCanvas() {
-  let phone = document.getElementById('phone');
   let gameArea = document.getElementById('gameArea');
   let canvas = document.getElementById('game');
   let areaW = gameArea.clientWidth, areaH = gameArea.clientHeight;
@@ -116,7 +115,6 @@ function fitCanvas() {
 window.addEventListener('resize', fitCanvas);
 window.addEventListener('orientationchange', fitCanvas);
 setTimeout(fitCanvas,100);
-
 
 /* --------- High Score LocalStorage --------- */
 const SCORE_KEY = 'monsterShooterHighScore';
@@ -131,18 +129,18 @@ function showHighScore(val) {
 }
 showHighScore(getHighScore());
 
-
 /* ---------------- GAME LOGIC ---------------- */
 let gameStarted = false;
 let lastFrame = performance.now();
+// Adjust control height and safe bottom based on new canvas height
 const CONTROL_HEIGHT = 120;
 const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
 
 (() => {
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
-  const HERO_SIZE = 40, HERO_X = 250, HERO_Y = 500;
-  const BASE_HERO_SPEED = 540; // increased base hero speed
+  const HERO_SIZE = 40, HERO_X = 325, HERO_Y = 570;
+  const BASE_HERO_SPEED = 540;
   const BULLET_SPEED = 700;
   const BASE_MONSTER_SPEED = 140;
   const MONSTER_BULLET_SPEED = 400;
@@ -151,7 +149,7 @@ const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
   let monsterBullets = [];
   let isMonstersFrozen = false;
   let freezeStartTime = 0;
-  const FREEZE_DURATION = 5000; // 5 seconds freeze
+  const FREEZE_DURATION = 5000;
 
   window.moveLeft=false;
   window.moveRight=false;
@@ -189,7 +187,7 @@ const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
     bullets.forEach(b=>ctx.fillRect(b.x,b.y,b.w,b.h));
     ctx.fillStyle="#f44";
     monsters.forEach(m=>ctx.fillRect(m.x,m.y,m.w,m.h));
-    ctx.fillStyle="#f8a"; // monster bullets color (pinkish)
+    ctx.fillStyle="#f8a";
     monsterBullets.forEach(b=>ctx.fillRect(b.x,b.y,b.w,b.h));
     ctx.fillStyle="#fff"; ctx.font="22px Arial";
     ctx.fillText("Score: "+score,20,40);
@@ -203,8 +201,7 @@ const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
     lastFrame = now;
     if(!gameStarted || gameOver) { requestAnimationFrame(tick); return; }
 
-    // Hero speed increases with score continuously
-    let heroSpeed = BASE_HERO_SPEED + score * 10; // +10 px/sec per score
+    let heroSpeed = BASE_HERO_SPEED + score*10;
     if(moveLeft)  heroX -= heroSpeed * dt;
     if(moveRight) heroX += heroSpeed * dt;
     if(moveUp)    heroY -= heroSpeed * dt;
@@ -213,50 +210,39 @@ const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
     heroX = Math.max(0, Math.min(W-HERO_SIZE, heroX));
     heroY = Math.max(0, Math.min(SAFE_BOTTOM-HERO_SIZE, heroY));
 
-    // Bullet firing (hero)
     fireCooldown -= dt;
     if(mouseHeld && fireCooldown <= 0){
       bullets.push({x:heroX+15,y:heroY,w:10,h:20});
-      fireCooldown = 0.11; // ~9/sec
+      fireCooldown = 0.11;
     }
 
-    // Increase monster speed and spawn frequency as score grows
-    if(!isMonstersFrozen) {
-      monsterSpeed = BASE_MONSTER_SPEED + score * 5; // +5 px/sec per score
-      spawnRate = Math.max(12, 50 - Math.floor(score/2)); // spawn rate decreases with score but min 12
+    if(!isMonstersFrozen){
+      monsterSpeed = BASE_MONSTER_SPEED + score*5;
+      spawnRate = Math.max(12, 50 - Math.floor(score/2));
     }
 
     if(Math.random()*spawnRate < dt*spawnRate && !isMonstersFrozen)
-      monsters.push({x:Math.random()*(W-40),y:0,w:40,h:40});
+      monsters.push({x:Math.random()*(W-40), y:0,w:40,h:40});
 
-    // Move bullets (hero)
     bullets.forEach(b=> b.y -= BULLET_SPEED*dt );
     bullets = bullets.filter(b=>b.y>0);
 
-    // Check monster freeze condition at score 40
     if(score >= 40 && !isMonstersFrozen){
-      // Freeze monsters and start firing
       isMonstersFrozen = true;
       freezeStartTime = now;
     }
 
-    // Monster behavior when frozen
     if(isMonstersFrozen){
-      // Freeze monsters: no vertical movement
-      // Monster firing bullets at hero every 0.7 seconds
       monsterFireCooldown -= dt;
       if(monsterFireCooldown <= 0){
         monsterFireCooldown = 0.7;
         monsters.forEach(m => {
-          // Fire bullet from monster center downward horizontally aiming at hero position (simple horizontal aiming)
-          // Create bullet starting at bottom center of monster
-          let bulletX = m.x + m.w/2 - 7; // bullet width ~14
+          let bulletX = m.x + m.w/2 - 7;
           let bulletY = m.y + m.h;
-          // Calculate horizontal speed component towards heroX, normalized horizontally only
           let diffX = heroX + HERO_SIZE/2 - bulletX;
           let speedX = 0;
           if(diffX !== 0) {
-            speedX = (diffX > 0) ? 150 : -150; // horizontal speed component
+            speedX = (diffX > 0) ? 150 : -150;
           }
           monsterBullets.push({
             x: bulletX,
@@ -268,30 +254,24 @@ const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
           });
         });
       }
-      // Monster bullets movement
       monsterBullets.forEach(b => {
         b.x += b.vx * dt;
         b.y += b.vy * dt;
       });
-      // Remove monster bullets offscreen
       monsterBullets = monsterBullets.filter(b => b.y < H && b.x > 0 && b.x < W);
 
-      // After freeze duration, revert to normal behavior
       if(now - freezeStartTime > FREEZE_DURATION){
         isMonstersFrozen = false;
         monsterBullets = [];
       }
     } else {
-      // Normal monster movement (vertical)
-      for(let m=monsters.length-1;m>=0;m--){
+      for(let m=monsters.length-1; m>=0; m--){
         monsters[m].y += monsterSpeed*dt;
-        if(monsters[m].y>H) window.globalGameOver();
+        if(monsters[m].y > H) window.globalGameOver();
       }
-      // Monster bullets cleared when not firing during freeze
       monsterBullets = [];
     }
 
-    // Collision checks: hero bullets vs monsters
     for(let bi=bullets.length-1; bi>=0; bi--){
       let b = bullets[bi];
       let hitIndex = -1;
@@ -308,7 +288,6 @@ const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
       }
     }
 
-    // Collision checks: monster bullets vs hero
     for(let bi=monsterBullets.length-1; bi>=0; bi--){
       let b = monsterBullets[bi];
       let heroRect = {x:heroX,y:heroY,w:HERO_SIZE,h:HERO_SIZE};
@@ -317,7 +296,6 @@ const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
       }
     }
 
-    // Update high score
     if(score > getHighScore()){
       setHighScore(score);
       showHighScore(score);
@@ -332,7 +310,7 @@ const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
 })();
 
 
-/* FIXED INPUT (pointer events for multitouch) */
+/* FIXED INPUT */
 function bind(id, down, up){
   const el=document.getElementById(id);
   el.addEventListener("pointerdown", e=>{e.preventDefault(); down();});
