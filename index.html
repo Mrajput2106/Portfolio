@@ -149,6 +149,16 @@
   <!-- START SCREEN -->
   <div id="startScreen" class="overlay">
     <h2>MONSTER SHOOTER</h2>
+
+    <p style="text-align:center; font-size:16px; opacity:0.9;">
+      ⭐ <b>PC Controls</b><br>
+      ← → ↑ ↓ = Move<br>
+      Left Mouse Button = Shoot
+      <br><br>
+      ⭐ <b>Mobile Controls</b><br>
+      Touch Buttons = Move & Fire
+    </p>
+
     <div id="startBtn" class="btn">START</div>
   </div>
 
@@ -179,20 +189,18 @@
       BACKGROUND MUSIC
    -------------------------- */
 
-/* ✨ YOUR AUDIO FILE HERE ✨  
-   Put file inside /sounds/bg.mp3  */
+/* 🎵 YOUR AUDIO FILE HERE  
+   (Put file in your folder) */
 
 const bgMusic = new Audio("assets/Space Shooter Template Music.mp3");
 bgMusic.loop = true;
 bgMusic.volume = 1.0;
 
-/* STOP MUSIC ON GAME OVER */
 function stopMusic() {
   bgMusic.pause();
   bgMusic.currentTime = 0;
 }
 
-/* PLAY MUSIC ON START & RETRY */
 function playMusic() {
   bgMusic.currentTime = 0;
   bgMusic.play();
@@ -283,7 +291,7 @@ const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
   }
 
   window.globalGameOver = ()=>{
-    stopMusic();    /* 🎵 STOP BG MUSIC */
+    stopMusic();
     gameOver = true;
     document.getElementById("retryScreen").style.display = "flex";
   };
@@ -405,7 +413,9 @@ const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
   requestAnimationFrame(tick);
 })();
 
-/* INPUT BINDINGS */
+/* -------------------------
+      MOBILE BUTTONS
+   ------------------------- */
 function bind(id, down, up){
   const el = document.getElementById(id);
   el.addEventListener("pointerdown", e => { e.preventDefault(); down(); });
@@ -418,14 +428,40 @@ bind("up", () => moveUp = true, () => moveUp = false);
 bind("down", () => moveDown = true, () => moveDown = false);
 bind("fireBtn", () => mouseHeld = true, () => mouseHeld = false);
 
+/* -------------------------
+      PC KEYBOARD CONTROLS
+   ------------------------- */
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowLeft") moveLeft = true;
+  if (e.key === "ArrowRight") moveRight = true;
+  if (e.key === "ArrowUp") moveUp = true;
+  if (e.key === "ArrowDown") moveDown = true;
+});
+
+document.addEventListener("keyup", (e) => {
+  if (e.key === "ArrowLeft") moveLeft = false;
+  if (e.key === "ArrowRight") moveRight = false;
+  if (e.key === "ArrowUp") moveUp = false;
+  if (e.key === "ArrowDown") moveDown = false;
+});
+
+/* -------------------------
+      PC MOUSE SHOOT
+   ------------------------- */
+document.addEventListener("mousedown", () => {
+  mouseHeld = true;
+});
+document.addEventListener("mouseup", () => {
+  mouseHeld = false;
+});
+
 /* START & RETRY */
 document.getElementById("startBtn").onclick = () => {
   document.getElementById("startScreen").style.display = "none";
   gameStarted = true; 
   globalReset();
   fitCanvas();
-
-  playMusic();    /* 🎵 START MUSIC */
+  playMusic();
 };
 
 document.getElementById("retryBtn").onclick = () => {
@@ -433,8 +469,7 @@ document.getElementById("retryBtn").onclick = () => {
   gameStarted = true; 
   globalReset();
   fitCanvas();
-
-  playMusic();     /* 🎵 START AGAIN */
+  playMusic();
 };
 
 </script>
