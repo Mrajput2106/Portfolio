@@ -145,14 +145,20 @@
     <div id="highScore">High Score: 0</div>
     <canvas id="game" width="700" height="800"></canvas>
   </div>
+
+  <!-- START SCREEN -->
   <div id="startScreen" class="overlay">
     <h2>MONSTER SHOOTER</h2>
     <div id="startBtn" class="btn">START</div>
   </div>
+
+  <!-- RETRY SCREEN -->
   <div id="retryScreen" class="overlay" style="display:none">
     <h2>GAME OVER</h2>
     <div id="retryBtn" class="btn">RETRY</div>
   </div>
+
+  <!-- Controls -->
   <div id="controls">
     <div id="fireBtn">FIRE</div>
     <div id="move">
@@ -165,7 +171,35 @@
     </div>
   </div>
 </div>
+
+
 <script>
+
+/* --------------------------
+      BACKGROUND MUSIC
+   -------------------------- */
+
+/* ✨ YOUR AUDIO FILE HERE ✨  
+   Put file inside /sounds/bg.mp3  */
+
+const bgMusic = new Audio("assets/Space Shooter Template Music.mp3");
+bgMusic.loop = true;
+bgMusic.volume = 1.0;
+
+/* STOP MUSIC ON GAME OVER */
+function stopMusic() {
+  bgMusic.pause();
+  bgMusic.currentTime = 0;
+}
+
+/* PLAY MUSIC ON START & RETRY */
+function playMusic() {
+  bgMusic.currentTime = 0;
+  bgMusic.play();
+}
+
+/* -------------- GAME LOGIC ------------------- */
+
 const W = 700, H = 800;
 
 function fitCanvas() {
@@ -182,28 +216,25 @@ setTimeout(fitCanvas,100);
 
 /* High Score LocalStorage */
 const SCORE_KEY = 'monsterShooterHighScore';
-function getHighScore() {
-  return parseInt(localStorage.getItem(SCORE_KEY) || '0', 10);
-}
-function setHighScore(val) {
-  localStorage.setItem(SCORE_KEY, val+'');
-}
+function getHighScore() { return parseInt(localStorage.getItem(SCORE_KEY) || '0'); }
+function setHighScore(val) { localStorage.setItem(SCORE_KEY, val); }
 function showHighScore(val) {
   document.getElementById('highScore').textContent = 'High Score: ' + val;
 }
 showHighScore(getHighScore());
 
-/* Images Loading */
+/* Load Images */
 const heroImg = new Image();
-heroImg.src = 'https://i.ibb.co/LDhXgRJf/nve9-twbd-210520-removebg-preview.png'; // spaceship hero
+heroImg.src = 'https://i.ibb.co/LDhXgRJf/nve9-twbd-210520-removebg-preview.png';
 
 const monsterImg = new Image();
-monsterImg.src = 'https://i.ibb.co/N2P2nNZb/2565745-removebg-preview.png'; // bomb monster
+monsterImg.src = 'https://i.ibb.co/N2P2nNZb/2565745-removebg-preview.png';
 
 const bulletImg = new Image();
-bulletImg.src = 'https://i.ibb.co/bR7r9Hgv/pngtree-gold-sniper-bullet-png-image-16384435-removebg-preview.png'; // fire bullet
+bulletImg.src = 'https://i.ibb.co/bR7r9Hgv/pngtree-gold-sniper-bullet-png-image-16384435-removebg-preview.png';
 
-/* ---------------- GAME LOGIC ---------------- */
+
+/* GAME LOOP */
 let gameStarted = false;
 let lastFrame = performance.now();
 const CONTROL_HEIGHT = 120;
@@ -244,14 +275,15 @@ const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
     lastFrame = performance.now();
     isMonstersFrozen = false;
     freezeStartTime = 0;
-    heroY = Math.min(heroY, SAFE_BOTTOM - HERO_SIZE);
   }
   window.globalReset = reset;
 
   function intersect(a,b){
     return !(a.x + a.w < b.x || b.x + b.w < a.x || a.y + a.h < b.y || b.y + b.h < a.y);
   }
+
   window.globalGameOver = ()=>{
+    stopMusic();    /* 🎵 STOP BG MUSIC */
     gameOver = true;
     document.getElementById("retryScreen").style.display = "flex";
   };
@@ -259,37 +291,10 @@ const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
   function draw(){
     ctx.clearRect(0, 0, W, H);
 
-    // Hero spaceship
-    if(heroImg.complete){
-      ctx.drawImage(heroImg, heroX, heroY, HERO_SIZE, HERO_SIZE);
-    } else {
-      ctx.fillStyle = "#0ff";
-      ctx.fillRect(heroX, heroY, HERO_SIZE, HERO_SIZE);
-    }
-
-    // Bullets (fire icon)
-    if(bulletImg.complete){
-      bullets.forEach(b => ctx.drawImage(bulletImg, b.x, b.y, b.w, b.h));
-    } else {
-      ctx.fillStyle = "#ff0";
-      bullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
-    }
-
-    // Monsters (bomb icon)
-    if(monsterImg.complete){
-      monsters.forEach(m => ctx.drawImage(monsterImg, m.x, m.y, m.w, m.h));
-    } else {
-      ctx.fillStyle = "#f44";
-      monsters.forEach(m => ctx.fillRect(m.x, m.y, m.w, m.h));
-    }
-
-    // Monster bullets (fire icon)
-    if(bulletImg.complete){
-      monsterBullets.forEach(b => ctx.drawImage(bulletImg, b.x, b.y, b.w, b.h));
-    } else {
-      ctx.fillStyle = "#f8a";
-      monsterBullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
-    }
+    ctx.drawImage(heroImg, heroX, heroY, HERO_SIZE, HERO_SIZE);
+    bullets.forEach(b => ctx.drawImage(bulletImg, b.x, b.y, b.w, b.h));
+    monsters.forEach(m => ctx.drawImage(monsterImg, m.x, m.y, m.w, m.h));
+    monsterBullets.forEach(b => ctx.drawImage(bulletImg, b.x, b.y, b.w, b.h));
 
     ctx.fillStyle = "#fff";
     ctx.font = "22px Arial";
@@ -302,6 +307,7 @@ const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
   function tick(now){
     let dt = Math.min((now - lastFrame) / 1000, 0.04);
     lastFrame = now;
+
     if(!gameStarted || gameOver) { requestAnimationFrame(tick); return; }
 
     let heroSpeed = BASE_HERO_SPEED + score * 10;
@@ -366,7 +372,7 @@ const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
       let b = bullets[bi];
       let hitIndex = -1;
       for(let mi = 0; mi < monsters.length; mi++){
-        if(intersect({x: b.x, y: b.y, w: b.w, h: b.h}, monsters[mi])){
+        if(intersect(b, monsters[mi])){
           hitIndex = mi;
           break;
         }
@@ -399,7 +405,7 @@ const SAFE_BOTTOM = H - CONTROL_HEIGHT - 6;
   requestAnimationFrame(tick);
 })();
 
-/* Input bindings */
+/* INPUT BINDINGS */
 function bind(id, down, up){
   const el = document.getElementById(id);
   el.addEventListener("pointerdown", e => { e.preventDefault(); down(); });
@@ -412,18 +418,25 @@ bind("up", () => moveUp = true, () => moveUp = false);
 bind("down", () => moveDown = true, () => moveDown = false);
 bind("fireBtn", () => mouseHeld = true, () => mouseHeld = false);
 
-/* Start / Retry Buttons */
+/* START & RETRY */
 document.getElementById("startBtn").onclick = () => {
   document.getElementById("startScreen").style.display = "none";
-  gameStarted = true; globalReset();
+  gameStarted = true; 
+  globalReset();
   fitCanvas();
+
+  playMusic();    /* 🎵 START MUSIC */
 };
+
 document.getElementById("retryBtn").onclick = () => {
   document.getElementById("retryScreen").style.display = "none";
-  gameStarted = true; globalReset();
+  gameStarted = true; 
+  globalReset();
   fitCanvas();
+
+  playMusic();     /* 🎵 START AGAIN */
 };
+
 </script>
 </body>
 </html>
-
